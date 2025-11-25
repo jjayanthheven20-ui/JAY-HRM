@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Download, CreditCard, TrendingUp, Calendar, Wallet, ArrowUpRight, ArrowDownRight, Plus, X, Calculator, Lock } from 'lucide-react';
+import { DollarSign, Download, CreditCard, TrendingUp, Calendar, Wallet, ArrowUpRight, ArrowDownRight, Plus, X, Calculator, Lock, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Employee, PayrollRecord, Department } from '../types';
 
@@ -99,17 +99,17 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
   };
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
-      <div className="flex justify-between items-end border-b border-gray-200 pb-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-gray-200 pb-4 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-black tracking-tight">Payroll</h2>
-          <p className="text-gray-500 text-sm mt-1">Salary processing, payslips, and financial insights.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-black tracking-tight">Payroll</h2>
+          <p className="text-gray-500 text-sm mt-1">Salary processing and payslips.</p>
         </div>
         
         {isHR && (
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 flex items-center space-x-2 transition-colors shadow-lg shadow-blue-900/20 rounded-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 w-full md:w-auto flex items-center justify-center space-x-2 transition-colors shadow-lg shadow-blue-900/20 rounded-sm active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span className="font-medium">Process Payroll</span>
@@ -120,7 +120,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Card */}
-        <div className="bg-black text-white p-8 shadow-xl rounded-sm relative overflow-hidden group">
+        <div className="bg-black text-white p-6 md:p-8 shadow-xl rounded-lg md:rounded-sm relative overflow-hidden group">
           <div className="absolute right-[-20px] top-[-20px] opacity-10 group-hover:opacity-20 transition-opacity duration-500">
             <Wallet className="w-40 h-40" />
           </div>
@@ -128,7 +128,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Disbursed</p>
-                <h3 className="text-4xl font-bold mt-2 text-white">${totalDisbursed.toLocaleString()}</h3>
+                <h3 className="text-3xl md:text-4xl font-bold mt-2 text-white">${totalDisbursed.toLocaleString()}</h3>
               </div>
               <div className="p-3 bg-white/10 rounded-full backdrop-blur-md">
                 <CreditCard className="w-6 h-6 text-blue-400" />
@@ -142,7 +142,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
         </div>
         
         {/* Avg Bonus */}
-        <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-sm flex flex-col justify-between">
+        <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-lg md:rounded-sm flex flex-col justify-between">
            <div className="flex justify-between items-start mb-4">
              <div>
                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Bonuses</p>
@@ -158,7 +158,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
         </div>
 
         {/* Deductions */}
-        <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-sm flex flex-col justify-between">
+        <div className="bg-white p-6 border border-gray-200 shadow-sm rounded-lg md:rounded-sm flex flex-col justify-between">
            <div className="flex justify-between items-start mb-4">
              <div>
                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Deductions</p>
@@ -176,7 +176,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart Section */}
-        <div className="lg:col-span-1 bg-white border border-gray-200 shadow-sm p-6 rounded-sm">
+        <div className="lg:col-span-1 bg-white border border-gray-200 shadow-sm p-6 rounded-sm hidden md:block">
              <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-6 flex items-center">
                 <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
                 Trends
@@ -196,70 +196,120 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
              </div>
         </div>
 
-        {/* Table Section */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm flex flex-col">
-            <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Payroll History</h3>
-                {!isHR && <span className="text-xs text-gray-500 flex items-center"><Lock className="w-3 h-3 mr-1"/> Personal Records Only</span>}
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                <thead className="bg-white border-b border-gray-200">
-                    <tr>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Employee</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Month</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Basic</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Net Pay</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-center">Status</th>
-                    <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                    {visibleRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-8 text-center text-gray-500 italic">No payroll records found.</td>
-                      </tr>
-                    ) : (
-                      visibleRecords.map((record) => {
-                      const employee = employees.find(e => e.id === record.employeeId);
-                      return (
-                          <tr key={record.id} className="hover:bg-blue-50/30 transition-colors group">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center space-x-3">
-                                  {employee ? (
-                                    <img src={employee.avatarUrl} alt="" className="w-8 h-8 rounded-full bg-gray-200 object-cover" />
-                                  ) : (
-                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">?</div>
-                                  )}
-                                  <div>
-                                      <p className="text-sm font-bold text-black">{employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown'}</p>
-                                      <p className="text-xs text-gray-500 font-mono">{employee?.role}</p>
-                                  </div>
+        {/* List Section */}
+        <div className="lg:col-span-2 space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 uppercase tracking-wider md:hidden">Payroll History</h3>
+
+            {/* Mobile Card List */}
+            <div className="md:hidden space-y-4">
+              {visibleRecords.length === 0 ? (
+                 <div className="text-center p-8 bg-gray-50 rounded-lg border border-gray-200 text-gray-500 italic">No records found.</div>
+              ) : (
+                visibleRecords.map((record) => {
+                  const employee = employees.find(e => e.id === record.employeeId);
+                  return (
+                    <div key={record.id} className="bg-white p-5 border border-gray-200 shadow-sm rounded-lg flex flex-col gap-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xs font-bold text-gray-600">
+                                {employee ? `${employee.firstName[0]}${employee.lastName[0]}` : '??'}
                               </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{record.month} {record.year}</td>
-                          <td className="px-6 py-4 text-sm text-gray-500 text-right font-mono">${record.basicSalary.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-sm font-bold text-black text-right font-mono text-base">${record.netSalary.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-center">
-                              <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${
+                              <div>
+                                <h4 className="font-bold text-gray-900">{employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown'}</h4>
+                                <p className="text-xs text-gray-500 font-mono">{record.month} {record.year}</p>
+                              </div>
+                          </div>
+                          <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${
                               record.status === 'Paid' 
                                   ? 'bg-blue-50 text-blue-700 border-blue-200' 
                                   : 'bg-orange-50 text-orange-600 border-orange-200'
                               }`}>
                               {record.status}
-                              </span>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                              <button className="text-gray-400 hover:text-blue-600 transition-colors bg-gray-50 p-2 rounded-sm hover:bg-blue-50">
-                              <Download className="w-4 h-4" />
-                              </button>
-                          </td>
-                          </tr>
-                      );
-                      })
-                    )}
-                </tbody>
-                </table>
+                          </span>
+                        </div>
+                        
+                        <div className="bg-black p-4 rounded-md flex justify-between items-center">
+                            <span className="text-gray-400 text-xs font-bold uppercase">Net Salary</span>
+                            <span className="text-xl font-bold text-white font-mono">${record.netSalary.toLocaleString()}</span>
+                        </div>
+
+                        <div className="flex justify-between items-center text-xs text-gray-500 px-1">
+                            <div>Basic: <span className="font-mono text-gray-900">${record.basicSalary.toLocaleString()}</span></div>
+                            <button className="flex items-center text-blue-600 font-bold">
+                               View Slip <ChevronRight className="w-3 h-3 ml-1" />
+                            </button>
+                        </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm flex flex-col">
+                <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Payroll History</h3>
+                    {!isHR && <span className="text-xs text-gray-500 flex items-center"><Lock className="w-3 h-3 mr-1"/> Personal Records Only</span>}
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                    <thead className="bg-white border-b border-gray-200">
+                        <tr>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Employee</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Month</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Basic</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Net Pay</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-center">Status</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                        {visibleRecords.length === 0 ? (
+                        <tr>
+                            <td colSpan={6} className="px-6 py-8 text-center text-gray-500 italic">No payroll records found.</td>
+                        </tr>
+                        ) : (
+                        visibleRecords.map((record) => {
+                        const employee = employees.find(e => e.id === record.employeeId);
+                        return (
+                            <tr key={record.id} className="hover:bg-blue-50/30 transition-colors group">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center space-x-3">
+                                    {employee ? (
+                                        <img src={employee.avatarUrl} alt="" className="w-8 h-8 rounded-full bg-gray-200 object-cover" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold">?</div>
+                                    )}
+                                    <div>
+                                        <p className="text-sm font-bold text-black">{employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown'}</p>
+                                        <p className="text-xs text-gray-500 font-mono">{employee?.role}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">{record.month} {record.year}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500 text-right font-mono">${record.basicSalary.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-sm font-bold text-black text-right font-mono text-base">${record.netSalary.toLocaleString()}</td>
+                            <td className="px-6 py-4 text-center">
+                                <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${
+                                record.status === 'Paid' 
+                                    ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                                    : 'bg-orange-50 text-orange-600 border-orange-200'
+                                }`}>
+                                {record.status}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                                <button className="text-gray-400 hover:text-blue-600 transition-colors bg-gray-50 p-2 rounded-sm hover:bg-blue-50">
+                                <Download className="w-4 h-4" />
+                                </button>
+                            </td>
+                            </tr>
+                        );
+                        })
+                        )}
+                    </tbody>
+                    </table>
+                </div>
             </div>
         </div>
       </div>
@@ -267,8 +317,8 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
       {/* Add Payroll Modal (HR Only) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-gray-200">
-             <div className="bg-black p-6 flex justify-between items-center text-white">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+             <div className="bg-black p-6 flex justify-between items-center text-white shrink-0">
                 <div>
                    <h3 className="text-xl font-bold">Process Payroll</h3>
                    <p className="text-gray-400 text-sm">Add a new salary record</p>
@@ -278,7 +328,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
                 </button>
              </div>
 
-             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+             <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Employee <span className="text-red-500">*</span></label>
                   <select 
@@ -376,7 +426,7 @@ const PayrollView: React.FC<PayrollViewProps> = ({ currentUser, employees, payro
 
                 <button 
                   type="submit"
-                  className="w-full bg-blue-600 text-white font-bold py-3 uppercase tracking-wider text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-900/10 rounded-sm"
+                  className="w-full bg-blue-600 text-white font-bold py-3 uppercase tracking-wider text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-900/10 rounded-sm active:scale-95 duration-200"
                 >
                   Confirm & Process
                 </button>

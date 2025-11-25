@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, Sparkles, LogIn, LogOut, Timer, ShieldCheck, ShieldAlert, Lock } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, Sparkles, LogIn, LogOut, Timer, ShieldCheck, ShieldAlert, Lock, MoreHorizontal } from 'lucide-react';
 import { MOCK_EMPLOYEES } from '../constants';
 import { AttendanceStatus, AttendanceRecord, Employee, Department } from '../types';
 import { analyzeAttendance } from '../services/geminiService';
@@ -143,16 +143,16 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
   };
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
-      <div className="flex justify-between items-end border-b border-gray-200 pb-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-gray-200 pb-4 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-black tracking-tight">Attendance</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-black tracking-tight">Attendance</h2>
           <p className="text-gray-500 text-sm mt-1">Daily logs, self-check-in, and analytics.</p>
         </div>
         <button 
           onClick={handleAnalyze}
           disabled={analyzing}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 flex items-center space-x-2 transition-colors disabled:opacity-70 shadow-sm rounded-sm"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 flex items-center justify-center space-x-2 transition-colors disabled:opacity-70 shadow-sm rounded-sm w-full md:w-auto"
         >
           {analyzing ? (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -172,14 +172,14 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
           </h3>
           <span className="text-gray-400 text-xs font-mono">{new Date().toDateString()}</span>
         </div>
-        <div className="p-8 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="p-4 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center space-x-6">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center border-4 ${isUserCheckedIn ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
-              <Clock className={`w-8 h-8 ${isUserCheckedIn ? 'text-blue-600 animate-pulse' : 'text-gray-400'}`} />
+            <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center border-4 ${isUserCheckedIn ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-gray-50'}`}>
+              <Clock className={`w-6 h-6 md:w-8 md:h-8 ${isUserCheckedIn ? 'text-blue-600 animate-pulse' : 'text-gray-400'}`} />
             </div>
             <div>
                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Current Status</p>
-               <h2 className={`text-3xl font-bold ${isUserCheckedIn ? 'text-blue-600' : 'text-gray-800'}`}>
+               <h2 className={`text-2xl md:text-3xl font-bold ${isUserCheckedIn ? 'text-blue-600' : 'text-gray-800'}`}>
                  {isUserCheckedIn ? 'CHECKED IN' : 'CHECKED OUT'}
                </h2>
                {isUserCheckedIn && (
@@ -190,7 +190,7 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
             </div>
           </div>
 
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-center md:items-end w-full md:w-auto">
              {isUserCheckedIn && (
                <div className="mb-4 text-center">
                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Session Duration</p>
@@ -203,7 +203,7 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
              {!isUserCheckedIn ? (
                 <button 
                   onClick={handleCheckIn}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-200 bg-blue-600 font-pj rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/30"
+                  className="w-full md:w-auto group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-200 bg-blue-600 font-pj rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/30"
                 >
                   <LogIn className="w-5 h-5 mr-2" />
                   CHECK IN NOW
@@ -211,7 +211,7 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
              ) : (
                 <button 
                   onClick={handleCheckOut}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-200 bg-black font-pj rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-800 shadow-lg"
+                  className="w-full md:w-auto group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white transition-all duration-200 bg-black font-pj rounded-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-800 shadow-lg"
                 >
                   <LogOut className="w-5 h-5 mr-2" />
                   CHECK OUT
@@ -224,7 +224,7 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
       {/* AI Analysis Result */}
       {analysis && (
         <div className="bg-blue-50 border border-blue-100 p-6 flex items-start space-x-4 shadow-sm rounded-sm">
-          <div className="bg-blue-600 p-2 rounded-full shadow-md">
+          <div className="bg-blue-600 p-2 rounded-full shadow-md shrink-0">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -234,51 +234,46 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
         </div>
       )}
 
-      {/* Records Table */}
-      <div className="bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm">
-        <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Attendance Logs</h3>
-          {!isHR && <span className="text-xs text-gray-500 flex items-center"><Lock className="w-3 h-3 mr-1"/> Admin Approval Restricted</span>}
-        </div>
-        <table className="w-full text-left">
-          <thead className="bg-white border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Employee</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Check In</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Check Out</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Verification Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {attendanceRecords.map((record) => {
-              const employee = MOCK_EMPLOYEES.find(e => e.id === record.employeeId) || 
-                               (currentUser.id === record.employeeId ? currentUser : undefined);
-              return (
-                <tr key={record.id} className="hover:bg-blue-50/30 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-600 flex items-center justify-center text-xs font-bold text-white rounded-full">
+      {/* Mobile Card View for Records */}
+      <div className="md:hidden space-y-4">
+        {attendanceRecords.map((record) => {
+           const employee = MOCK_EMPLOYEES.find(e => e.id === record.employeeId) || 
+                            (currentUser.id === record.employeeId ? currentUser : undefined);
+           return (
+             <div key={record.id} className="bg-white p-4 border border-gray-200 shadow-sm rounded-lg flex flex-col gap-3">
+                <div className="flex justify-between items-start">
+                   <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-600 flex items-center justify-center text-xs font-bold text-white rounded-full">
                         {employee?.firstName.charAt(0)}{employee?.lastName.charAt(0)}
                       </div>
-                      <span className="font-bold text-sm text-black">{employee?.firstName} {employee?.lastName}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 font-mono">{record.date}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 font-mono">{record.checkIn || '--:--'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 font-mono">{record.checkOut || '--:--'}</td>
-                  <td className="px-6 py-4">
-                    {getStatusBadge(record.status)}
-                  </td>
-                  <td className="px-6 py-4 text-right">
+                      <div>
+                        <p className="font-bold text-sm text-black">{employee?.firstName} {employee?.lastName}</p>
+                        <p className="text-xs text-gray-500 font-mono">{record.date}</p>
+                      </div>
+                   </div>
+                   {getStatusBadge(record.status)}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2 rounded-md">
+                   <div className="text-center border-r border-gray-200">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold">In</p>
+                      <p className="text-sm font-mono font-medium">{record.checkIn || '--:--'}</p>
+                   </div>
+                   <div className="text-center">
+                      <p className="text-[10px] text-gray-400 uppercase font-bold">Out</p>
+                      <p className="text-sm font-mono font-medium">{record.checkOut || '--:--'}</p>
+                   </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <span className="text-xs text-gray-400 font-medium">Verification:</span>
                     {record.isVerified ? (
-                      <div className="flex items-center justify-end text-blue-600 space-x-1">
+                      <div className="flex items-center text-blue-600 space-x-1">
                         <ShieldCheck className="w-4 h-4" />
                         <span className="text-xs font-bold uppercase">Verified</span>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-end">
+                      <div className="flex items-center">
                         {isHR ? (
                           <button 
                             onClick={() => handleApprove(record.id)}
@@ -293,6 +288,71 @@ const AttendanceView: React.FC<AttendanceViewProps> = ({ currentUser, attendance
                           </span>
                         )}
                       </div>
+                    )}
+                </div>
+             </div>
+           );
+        })}
+      </div>
+
+      {/* Desktop Records Table */}
+      <div className="hidden md:block bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm">
+        <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+          <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Attendance Logs</h3>
+          {!isHR && <span className="text-xs text-gray-500 flex items-center"><Lock className="w-3 h-3 mr-1"/> Admin Approval Restricted</span>}
+        </div>
+        <table className="w-full text-left">
+          <thead className="bg-white border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Employee</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Check In</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Check Out</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Verification</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {attendanceRecords.map((record) => {
+              const employee = MOCK_EMPLOYEES.find(e => e.id === record.employeeId) || 
+                               (currentUser.id === record.employeeId ? currentUser : undefined);
+              return (
+                <tr key={record.id} className="hover:bg-blue-50/30 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center space-x-3">
+                       <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {employee?.firstName.charAt(0)}{employee?.lastName.charAt(0)}
+                       </div>
+                       <div>
+                          <p className="text-sm font-bold text-black">{employee?.firstName} {employee?.lastName}</p>
+                          <p className="text-xs text-gray-500">{employee?.role}</p>
+                       </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 font-mono">{record.date}</td>
+                  <td className="px-6 py-4 text-sm text-black font-mono font-bold">{record.checkIn || '--:--'}</td>
+                  <td className="px-6 py-4 text-sm text-black font-mono font-bold">{record.checkOut || '--:--'}</td>
+                  <td className="px-6 py-4">
+                    {getStatusBadge(record.status)}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {record.isVerified ? (
+                      <div className="flex items-center justify-end text-blue-600 space-x-1">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase">Verified</span>
+                      </div>
+                    ) : (
+                      isHR ? (
+                        <button 
+                          onClick={() => handleApprove(record.id)}
+                          className="px-3 py-1.5 bg-black text-white hover:bg-gray-800 rounded-sm text-xs font-bold uppercase transition-colors inline-flex items-center"
+                        >
+                          <ShieldAlert className="w-3 h-3 mr-1.5" />
+                          Approve
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Pending</span>
+                      )
                     )}
                   </td>
                 </tr>

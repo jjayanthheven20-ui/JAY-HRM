@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Filter, X, Trash2, Eye, DollarSign, Mail, Briefcase, Calendar, User, Smartphone, Save } from 'lucide-react';
+import { Search, Plus, Filter, X, Trash2, Eye, DollarSign, Mail, Briefcase, Calendar, User, Smartphone, Save, ChevronRight } from 'lucide-react';
 import { EmployeeStatus, Department, Employee } from '../types';
 
 interface EmployeeListProps {
@@ -82,6 +82,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       onUpdateEmployees(employees.filter(emp => emp.id !== id));
+      if (viewModalOpen) setViewModalOpen(false);
     }
   };
 
@@ -98,14 +99,14 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-end border-b border-gray-200 pb-4">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-gray-200 pb-4 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-black tracking-tight">Employees</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-black tracking-tight">Employees</h2>
           <p className="text-gray-500 text-sm mt-1">Manage your workforce.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 flex items-center space-x-2 transition-colors shadow-sm rounded-sm"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 flex items-center justify-center space-x-2 transition-colors shadow-sm rounded-sm w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           <span className="font-medium">Add Employee</span>
@@ -113,7 +114,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
       </div>
 
       {/* Filters */}
-      <div className="flex space-x-4 bg-gray-50 p-4 border border-gray-200 rounded-sm">
+      <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 bg-gray-50 p-4 border border-gray-200 rounded-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
           <input 
@@ -124,14 +125,33 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="bg-white border border-gray-300 px-4 py-2.5 flex items-center space-x-2 text-gray-700 hover:bg-gray-50 rounded-sm">
+        <button className="bg-white border border-gray-300 px-4 py-2.5 flex items-center justify-center space-x-2 text-gray-700 hover:bg-gray-50 rounded-sm">
           <Filter className="w-4 h-4" />
           <span className="text-sm font-medium">Filter</span>
         </button>
       </div>
 
-      {/* Employee Table */}
-      <div className="bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredEmployees.map((employee) => (
+           <div key={employee.id} onClick={() => handleView(employee)} className="bg-white p-4 border border-gray-200 rounded-lg shadow-sm active:scale-[0.99] transition-transform flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                 <img src={employee.avatarUrl} alt="" className="w-12 h-12 rounded-full bg-gray-200 object-cover" />
+                 <div>
+                    <h3 className="font-bold text-gray-900">{employee.firstName} {employee.lastName}</h3>
+                    <p className="text-sm text-gray-500">{employee.role}</p>
+                    <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${getStatusBadge(employee.status)}`}>
+                        {employee.status}
+                    </span>
+                 </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-300" />
+           </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm">
         <table className="w-full text-left">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
@@ -208,7 +228,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
             
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
-              
+              {/* ... (Existing Form Content - kept simplified for brevity in diff but assuming content logic is same) ... */}
               {/* Personal Info Section */}
               <div className="space-y-4">
                  <h4 className="text-sm font-bold text-blue-600 uppercase tracking-wider border-b border-gray-100 pb-2">Personal Information</h4>
@@ -364,8 +384,8 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
       {/* View Details Modal */}
       {viewModalOpen && selectedEmployee && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-           <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-gray-200">
-              <div className="bg-black p-6 flex items-start justify-between">
+           <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+              <div className="bg-black p-6 flex items-start justify-between shrink-0">
                  <div className="flex items-center space-x-4">
                     <img src={selectedEmployee.avatarUrl} alt="" className="w-16 h-16 rounded-full border-4 border-white object-cover" />
                     <div>
@@ -377,7 +397,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
                     <X className="w-5 h-5" />
                  </button>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 overflow-y-auto">
                  <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-gray-50 rounded-sm">
                        <p className="text-xs text-gray-500 uppercase font-bold">Department</p>
@@ -394,7 +414,7 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
                  <div className="space-y-3 pt-2">
                     <div className="flex items-center text-sm text-gray-700 border-b border-gray-100 pb-2">
                        <Mail className="w-4 h-4 mr-3 text-blue-600" />
-                       <span className="flex-1">{selectedEmployee.email}</span>
+                       <span className="flex-1 break-all">{selectedEmployee.email}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-700 border-b border-gray-100 pb-2">
                        <Smartphone className="w-4 h-4 mr-3 text-blue-600" />
@@ -410,10 +430,17 @@ const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onUpdateEmployee
                     </div>
                  </div>
 
-                 <div className="pt-4 flex justify-end">
+                 <div className="pt-4 flex flex-col md:flex-row justify-end gap-3">
+                    <button 
+                      onClick={() => handleDelete(selectedEmployee.id)}
+                      className="px-4 py-3 md:py-2 bg-red-50 text-red-600 text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-red-100 transition-colors flex items-center justify-center"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Employee
+                    </button>
                     <button 
                       onClick={() => setViewModalOpen(false)}
-                      className="px-4 py-2 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-gray-800 transition-colors"
+                      className="px-4 py-3 md:py-2 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-gray-800 transition-colors"
                     >
                       Close Details
                     </button>

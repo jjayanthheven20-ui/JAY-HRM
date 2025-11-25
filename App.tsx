@@ -92,14 +92,14 @@ function App() {
       
       {/* Main Content - with responsive margin */}
       <main className="flex-1 md:ml-64 w-full">
-        <div className="p-4 md:p-8">
+        <div className="p-3 md:p-8">
           {/* Header Area */}
-          <header className="flex justify-between items-center mb-6 md:mb-8 border-b border-gray-100 pb-6">
+          <header className="flex justify-between items-center mb-4 md:mb-8 border-b border-gray-100 pb-4 md:pb-6">
             <div className="flex items-center">
               {/* Mobile Hamburger Button */}
               <button 
                 onClick={() => setIsSidebarOpen(true)}
-                className="mr-4 md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md"
+                className="mr-3 md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md active:bg-gray-200"
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -119,7 +119,7 @@ function App() {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4 md:space-x-6">
+            <div className="flex items-center space-x-3 md:space-x-6">
               <div className="relative cursor-pointer group">
                 <div className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                   <Bell className="w-5 h-5 text-gray-500 group-hover:text-blue-600" />
@@ -127,12 +127,12 @@ function App() {
                 <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full border border-white"></span>
               </div>
               
-              <div className="flex items-center space-x-3 pl-6 border-l border-gray-200">
+              <div className="flex items-center space-x-3 pl-3 md:pl-6 md:border-l border-gray-200">
                  <div className="text-right hidden md:block">
                     <p className="text-sm font-bold text-black">{currentUser.firstName} {currentUser.lastName}</p>
                     <p className="text-xs text-gray-500">{currentUser.role}</p>
                  </div>
-                 <div className="h-8 w-8 md:h-10 md:w-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm cursor-pointer overflow-hidden">
+                 <div className="h-9 w-9 md:h-10 md:w-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm cursor-pointer overflow-hidden">
                     {currentUser.avatarUrl ? (
                       <img src={currentUser.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
@@ -144,7 +144,7 @@ function App() {
           </header>
 
           {/* Content Area */}
-          <div className="animate-fade-in">
+          <div className="animate-fade-in pb-20 md:pb-0">
             {renderView()}
           </div>
         </div>
