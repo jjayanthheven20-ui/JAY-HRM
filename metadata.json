@@ -1,0 +1,7 @@
+{
+  "name": "JAY HRM",
+  "description": "A comprehensive Human Resource Management system featuring Employee Management, Attendance Tracking, Leave Management with AI-assisted drafting, and Payroll visualization.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
