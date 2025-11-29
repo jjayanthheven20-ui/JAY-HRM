@@ -99,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, cu
             <span>Sign Out</span>
           </button>
           <div className="mt-4 px-4 text-[10px] text-neutral-600 text-center font-mono">
-            v1.0.0 © JAY HRM
+            © www.jayhrm.com
           </div>
         </div>
       </div>

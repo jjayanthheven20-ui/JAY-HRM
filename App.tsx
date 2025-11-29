@@ -144,7 +144,7 @@ function App() {
           </header>
 
           {/* Content Area */}
-          <div className="animate-fade-in pb-20 md:pb-0">
+          <div className="animate-fade-in pb-8 md:pb-0">
             {renderView()}
           </div>
         </div>

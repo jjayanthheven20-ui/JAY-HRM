@@ -50,7 +50,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, employees }) => {
           setLoading(false);
         }
       } else {
-        // Admin Validation
+        // Admin Validation - Enforcing requested credentials
         if (username === 'jayanth20' && password === 'jayanth@12') {
           onLogin(SUPER_ADMIN);
         } else {
@@ -211,15 +211,9 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin, employees }) => {
 
         {/* Footer */}
         <div className="bg-gray-50 p-4 border-t border-gray-200 text-center">
-           {mode === 'employee' ? (
-             <p className="text-xs text-gray-500">
-               Test Employee: <span className="font-mono font-bold text-gray-700">9876543210</span>
-             </p>
-           ) : (
-             <p className="text-xs text-gray-500">
-               Protected System. Unauthorized access is prohibited.
-             </p>
-           )}
+           <p className="text-xs text-gray-400">
+             © 2024 www.jayhrm.com. Protected System.
+           </p>
         </div>
       </div>
     </div>
