@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { CalendarDays, Send, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle, ThumbsUp, ThumbsDown, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { CalendarDays, Send, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle, ThumbsUp, ThumbsDown, Lock, ChevronDown, ChevronUp, BrainCircuit, X } from 'lucide-react';
 import { MOCK_EMPLOYEES } from '../constants';
-import { generateProfessionalReason } from '../services/geminiService';
+import { generateProfessionalReason, analyzeLeaveRequest } from '../services/geminiService';
 import { LeaveType, LeaveStatus, LeaveRequest, Employee, Department } from '../types';
 
 interface LeaveViewProps {
@@ -22,6 +22,10 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // AI Evaluation State
+  const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
+  const [evaluationResult, setEvaluationResult] = useState<{id: string, text: string} | null>(null);
+
   const isHR = currentUser.department === Department.HR;
 
   const handleGenerateReason = async () => {
@@ -30,6 +34,18 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
     const refinedReason = await generateProfessionalReason(formData.reason, formData.type);
     setFormData(prev => ({ ...prev, reason: refinedReason }));
     setIsGenerating(false);
+  };
+
+  const handleEvaluate = async (request: LeaveRequest) => {
+    setEvaluatingId(request.id);
+    const employee = MOCK_EMPLOYEES.find(e => e.id === request.employeeId) || 
+                     (currentUser.id === request.employeeId ? currentUser : undefined);
+    
+    if (employee) {
+      const insight = await analyzeLeaveRequest(request, employee.role, employee.department);
+      setEvaluationResult({ id: request.id, text: insight });
+    }
+    setEvaluatingId(null);
   };
 
   const handleSubmit = () => {
@@ -69,6 +85,7 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
         leave.id === id ? { ...leave, status: LeaveStatus.APPROVED } : leave
       )
     );
+    if (evaluationResult?.id === id) setEvaluationResult(null);
   };
 
   const handleReject = (id: string) => {
@@ -77,6 +94,7 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
           leave.id === id ? { ...leave, status: LeaveStatus.REJECTED } : leave
         )
       );
+      if (evaluationResult?.id === id) setEvaluationResult(null);
     }
   };
 
@@ -211,20 +229,46 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
                   "{leave.reason}"
                 </p>
 
+                {/* AI Insight Box Mobile */}
+                {evaluationResult?.id === leave.id && (
+                  <div className="bg-blue-50 p-3 rounded-sm border border-blue-100 text-xs text-blue-800 flex items-start animate-fade-in">
+                    <Sparkles className="w-3 h-3 mr-2 mt-0.5 shrink-0" />
+                    <div>
+                      <span className="font-bold block mb-1 uppercase text-[10px]">AI Assessment</span>
+                      {evaluationResult.text}
+                    </div>
+                  </div>
+                )}
+
                 {isHR && leave.status === LeaveStatus.PENDING && (
-                  <div className="flex gap-2 pt-2 border-t border-gray-100 mt-1">
+                  <div className="flex flex-col gap-2 pt-2 border-t border-gray-100 mt-1">
                     <button 
-                      onClick={() => handleApprove(leave.id)}
-                      className="flex-1 py-2 bg-black text-white text-xs font-bold uppercase rounded-sm flex items-center justify-center active:scale-95 transition-transform"
+                      onClick={() => handleEvaluate(leave)}
+                      disabled={evaluatingId === leave.id}
+                      className="w-full py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold uppercase rounded-sm flex items-center justify-center transition-colors mb-2"
                     >
-                      <ThumbsUp className="w-3 h-3 mr-1" /> Approve
+                      {evaluatingId === leave.id ? (
+                        <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <>
+                          <BrainCircuit className="w-3 h-3 mr-1" /> AI Evaluate
+                        </>
+                      )}
                     </button>
-                    <button 
-                      onClick={() => handleReject(leave.id)}
-                      className="flex-1 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold uppercase rounded-sm flex items-center justify-center active:scale-95 transition-transform"
-                    >
-                      <ThumbsDown className="w-3 h-3 mr-1" /> Reject
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleApprove(leave.id)}
+                        className="flex-1 py-2 bg-black text-white text-xs font-bold uppercase rounded-sm flex items-center justify-center active:scale-95 transition-transform"
+                      >
+                        <ThumbsUp className="w-3 h-3 mr-1" /> Approve
+                      </button>
+                      <button 
+                        onClick={() => handleReject(leave.id)}
+                        className="flex-1 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold uppercase rounded-sm flex items-center justify-center active:scale-95 transition-transform"
+                      >
+                        <ThumbsDown className="w-3 h-3 mr-1" /> Reject
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -232,24 +276,21 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
           })}
         </div>
 
-        {/* Desktop View: Table */}
-        <div className="hidden md:block bg-white border border-gray-200 shadow-sm overflow-hidden h-full rounded-sm">
-          <div className="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-             <h3 className="text-lg font-bold text-black flex items-center uppercase tracking-wide">
-              <CalendarDays className="w-5 h-5 mr-2 text-blue-600" />
-              Request History
-            </h3>
-            {!isHR && <span className="text-xs text-gray-500 flex items-center"><Lock className="w-3 h-3 mr-1"/> Admin View Restricted</span>}
+        {/* Desktop View */}
+        <div className="hidden md:block bg-white border border-gray-200 shadow-sm overflow-hidden rounded-sm">
+          <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Leave Applications</h3>
+            {isHR && <div className="text-xs text-blue-600 font-bold flex items-center"><BrainCircuit className="w-4 h-4 mr-1"/> AI Evaluation Enabled</div>}
           </div>
           <table className="w-full text-left">
             <thead className="bg-white border-b border-gray-200">
               <tr>
                 <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Employee</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Duration</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Reason Summary</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Dates</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider w-1/3">Reason</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider">Status</th>
-                {isHR && <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Admin Actions</th>}
+                <th className="px-6 py-4 text-xs font-bold text-gray-900 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -257,50 +298,67 @@ const LeaveView: React.FC<LeaveViewProps> = ({ currentUser, leaveRequests, onUpd
                 const employee = MOCK_EMPLOYEES.find(e => e.id === leave.employeeId) || 
                                  (currentUser.id === leave.employeeId ? currentUser : undefined);
                 return (
-                  <tr key={leave.id} className="hover:bg-blue-50/30 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-blue-100 flex items-center justify-center text-blue-800 text-xs font-bold mr-3 rounded-full">
-                           {employee?.firstName.charAt(0)}{employee?.lastName.charAt(0)}
-                        </div>
-                        <span className="text-sm font-bold text-black">{employee?.firstName} {employee?.lastName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 font-medium">{leave.type}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600 font-mono">
-                      {leave.startDate} <span className="text-gray-400">/</span> {leave.endDate}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate italic" title={leave.reason}>
-                      "{leave.reason}"
-                    </td>
-                    <td className="px-6 py-4">
-                      {leave.status === LeaveStatus.APPROVED && <span className="inline-flex items-center text-xs text-green-700 bg-green-100 font-bold px-2 py-1 uppercase tracking-wider rounded-full"><CheckCircle2 className="w-3 h-3 mr-1"/> Approved</span>}
-                      {leave.status === LeaveStatus.PENDING && <span className="inline-flex items-center text-xs text-orange-700 bg-orange-100 font-bold px-2 py-1 uppercase tracking-wider rounded-full"><Clock className="w-3 h-3 mr-1"/> Pending</span>}
-                      {leave.status === LeaveStatus.REJECTED && <span className="inline-flex items-center text-xs text-red-700 bg-red-100 font-bold px-2 py-1 uppercase tracking-wider rounded-full"><XCircle className="w-3 h-3 mr-1"/> Rejected</span>}
-                    </td>
-                    {isHR && (
+                  <React.Fragment key={leave.id}>
+                    <tr className="hover:bg-blue-50/30 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                         <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                               {employee?.firstName.charAt(0)}{employee?.lastName.charAt(0)}
+                            </div>
+                            <div>
+                               <p className="text-sm font-bold text-black">{employee?.firstName} {employee?.lastName}</p>
+                               <p className="text-xs text-gray-500">{employee?.role}</p>
+                            </div>
+                         </div>
+                      </td>
+                      <td className="px-6 py-4 text-xs font-bold text-gray-600 uppercase">{leave.type}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 font-mono">
+                        {leave.startDate} <span className="text-gray-400">to</span> {leave.endDate}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 italic">"{leave.reason}"</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${getStatusColor(leave.status)}`}>
+                          {leave.status}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 text-right">
-                        {leave.status === LeaveStatus.PENDING && (
+                        {isHR && leave.status === LeaveStatus.PENDING ? (
                           <div className="flex items-center justify-end space-x-2">
                             <button 
-                              onClick={() => handleApprove(leave.id)}
-                              className="text-gray-400 hover:text-green-600 transition-colors p-1"
-                              title="Approve Request"
+                              onClick={() => handleEvaluate(leave)}
+                              disabled={evaluatingId === leave.id}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-sm transition-colors"
+                              title="AI Evaluate"
                             >
-                              <ThumbsUp className="w-4 h-4" />
+                               {evaluatingId === leave.id ? <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div> : <BrainCircuit className="w-4 h-4" />}
                             </button>
-                            <button 
-                              onClick={() => handleReject(leave.id)}
-                              className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                              title="Reject Request"
-                            >
-                              <ThumbsDown className="w-4 h-4" />
+                            <button onClick={() => handleApprove(leave.id)} className="p-2 text-green-600 hover:bg-green-50 rounded-sm transition-colors" title="Approve">
+                               <ThumbsUp className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleReject(leave.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-sm transition-colors" title="Reject">
+                               <ThumbsDown className="w-4 h-4" />
                             </button>
                           </div>
+                        ) : (
+                           <span className="text-gray-400 text-xs">-</span>
                         )}
                       </td>
+                    </tr>
+                    {/* AI Insight Row */}
+                    {evaluationResult?.id === leave.id && (
+                      <tr className="bg-blue-50/50 animate-fade-in">
+                         <td colSpan={6} className="px-6 py-3 border-b border-blue-100">
+                            <div className="flex items-start text-xs text-blue-800">
+                               <Sparkles className="w-4 h-4 mr-2 mt-0.5 text-blue-600 shrink-0" />
+                               <div>
+                                  <span className="font-bold uppercase tracking-wider text-blue-600 text-[10px] block mb-1">AI Assessment</span>
+                                  {evaluationResult.text}
+                               </div>
+                            </div>
+                         </td>
+                      </tr>
                     )}
-                  </tr>
+                  </React.Fragment>
                 );
               })}
             </tbody>

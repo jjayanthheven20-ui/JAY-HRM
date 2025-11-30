@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { AttendanceRecord, ChatMessage } from "../types";
+import { AttendanceRecord, ChatMessage, LeaveRequest } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -34,6 +34,24 @@ export const analyzeAttendance = async (records: AttendanceRecord[]): Promise<st
   } catch (error) {
     console.error("Error analyzing attendance:", error);
     return "Analysis currently unavailable.";
+  }
+};
+
+export const analyzeLeaveRequest = async (request: LeaveRequest, employeeRole: string, department: string): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: `You are an HR assistant. Analyze this leave request for a ${employeeRole} in the ${department} department.
+      Leave Type: ${request.type}
+      Reason: "${request.reason}"
+      Duration: ${request.startDate} to ${request.endDate}
+
+      Provide a 1-sentence professional assessment of the request's validity or urgency to help the manager decide.`,
+    });
+    return response.text || "Unable to analyze request.";
+  } catch (error) {
+    console.error("Error analyzing leave:", error);
+    return "Analysis unavailable.";
   }
 };
 

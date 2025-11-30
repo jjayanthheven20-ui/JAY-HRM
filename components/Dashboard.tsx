@@ -1,18 +1,50 @@
 import React from 'react';
-import { Users, UserCheck, Clock, DollarSign } from 'lucide-react';
+import { Users, UserCheck, Clock, DollarSign, ShieldCheck } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { MOCK_EMPLOYEES, MOCK_ATTENDANCE, MOCK_PAYROLL } from '../constants';
-import { EmployeeStatus } from '../types';
+import { EmployeeStatus, Department } from '../types';
+import { Employee } from '../types';
 
 // Black & Blue Palette
 const COLORS = ['#2563eb', '#1e40af', '#60a5fa', '#93c5fd', '#bfdbfe'];
 
-const Dashboard: React.FC = () => {
+// We need to access currentUser to check role, so we modify props
+// NOTE: Ideally Dashboard should receive currentUser as prop from App.tsx. 
+// Assuming Dashboard component signature update is acceptable or we use a context (but context is not set up here).
+// For this quick fix, I will assume we can't easily change the prop signature in App.tsx without providing the file in full context.
+// However, since App.tsx was provided in the prompt, I can update the component definition.
+
+const Dashboard = () => {
+  // HACK: To access currentUser without prop drilling in this specific XML response format if App.tsx isn't fully re-rendered, 
+  // we usually need props. But let's check App.tsx content.
+  // App.tsx renders <Dashboard /> without props.
+  // I will check if I can get user info or if I should just use the passed props if I change App.tsx too.
+  // Actually, I can't change the component signature without changing App.tsx.
+  // Let's rely on localStorage or similar? No, that's bad practice.
+  // The cleanest way is to just render all for now, OR better: Update App.tsx to pass currentUser to Dashboard.
+  return <DashboardContent />;
+};
+
+const DashboardContent = () => {
+  // Re-implementing logic with role check simulation or assume standard view
+  // Since I cannot access currentUser here without props, and the user asked to change visibility "in employee", 
+  // I will update App.tsx to pass the user to Dashboard, and then update Dashboard here.
+  return null; 
+};
+
+// Redefining Dashboard correctly
+interface DashboardProps {
+  currentUser?: Employee; // Optional to not break if not passed immediately, but we will pass it
+}
+
+const DashboardComponent: React.FC<DashboardProps> = ({ currentUser }) => {
   // Calculated stats
   const totalEmployees = MOCK_EMPLOYEES.length;
   const activeEmployees = MOCK_EMPLOYEES.filter(e => e.status === EmployeeStatus.ACTIVE).length;
   const onLeave = MOCK_EMPLOYEES.filter(e => e.status === EmployeeStatus.ON_LEAVE).length;
   const totalPayroll = MOCK_PAYROLL.reduce((acc, curr) => acc + curr.netSalary, 0);
+
+  const isHR = currentUser?.department === Department.HR;
 
   // Chart Data Preparation
   const deptData = MOCK_EMPLOYEES.reduce((acc: any[], curr) => {
@@ -52,10 +84,18 @@ const Dashboard: React.FC = () => {
       
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={Users} title="Total Employees" value={totalEmployees} />
-        <StatCard icon={UserCheck} title="Active" value={activeEmployees} />
+        {isHR ? (
+          <StatCard icon={Users} title="Total Employees" value={totalEmployees} />
+        ) : (
+          <StatCard icon={ShieldCheck} title="My Role" value={currentUser?.role || 'Employee'} prefix="" />
+        )}
+        
+        <StatCard icon={UserCheck} title="Active Colleagues" value={activeEmployees} />
         <StatCard icon={Clock} title="On Leave" value={onLeave} />
-        <StatCard icon={DollarSign} title="Total Payroll" value={totalPayroll} prefix="$" />
+        
+        {isHR && (
+          <StatCard icon={DollarSign} title="Total Payroll" value={totalPayroll} prefix="$" />
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
@@ -113,4 +153,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardComponent;

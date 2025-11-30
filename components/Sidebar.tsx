@@ -1,6 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Users, CalendarCheck, CalendarDays, DollarSign, LogOut, MessageSquare, X } from 'lucide-react';
-import { ViewState, Employee } from '../types';
+import { ViewState, Employee, Department } from '../types';
 
 interface SidebarProps {
   currentView: ViewState;
@@ -12,12 +12,17 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, currentUser, isOpen, onClose }) => {
+  const isHR = currentUser.department === Department.HR;
+
+  // Filter menu items based on role
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'employees', label: 'Employees', icon: Users },
+    // Only HR sees Employee List
+    ...(isHR ? [{ id: 'employees', label: 'Employees', icon: Users }] : []),
     { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
     { id: 'leave', label: 'Leave Mgmt', icon: CalendarDays },
-    { id: 'payroll', label: 'Payroll', icon: DollarSign },
+    // Only HR sees Payroll module (as requested)
+    ...(isHR ? [{ id: 'payroll', label: 'Payroll', icon: DollarSign }] : []),
     { id: 'chat', label: 'AI Assistant', icon: MessageSquare },
   ];
 

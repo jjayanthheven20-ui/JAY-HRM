@@ -38,8 +38,10 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard currentUser={currentUser!} />;
       case 'employees':
+        // Double check safety if they somehow got here
+        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
         return <EmployeeList employees={employees} onUpdateEmployees={setEmployees} />;
       case 'attendance':
         return (
@@ -58,6 +60,8 @@ function App() {
           />
         );
       case 'payroll':
+         // Double check safety
+        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
         return (
           <PayrollView 
             currentUser={currentUser!} 
@@ -69,7 +73,7 @@ function App() {
       case 'chat':
         return <ChatView />;
       default:
-        return <Dashboard />;
+        return <Dashboard currentUser={currentUser!} />;
     }
   };
 
