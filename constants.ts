@@ -65,6 +65,19 @@ export const MOCK_EMPLOYEES: Employee[] = [
     joinDate: '2020-11-05',
     avatarUrl: 'https://picsum.photos/seed/robert/100/100',
     salary: 75000
+  },
+  {
+    id: 'EMP006',
+    firstName: 'Jayanth',
+    lastName: 'J',
+    email: 'jjayanthheven20@gmail.com',
+    mobileNumber: '9778391171',
+    role: 'HR Executive',
+    department: Department.HR,
+    status: EmployeeStatus.ACTIVE,
+    joinDate: '2023-11-01',
+    avatarUrl: 'https://ui-avatars.com/api/?name=Jayanth+J&background=random',
+    salary: 45000
   }
 ];
 

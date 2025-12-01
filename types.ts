@@ -1,4 +1,4 @@
-export type ViewState = 'dashboard' | 'employees' | 'attendance' | 'leave' | 'payroll' | 'chat';
+export type ViewState = 'dashboard' | 'employees' | 'attendance' | 'leave' | 'payroll' | 'chat' | 'documents';
 
 export interface ChatMessage {
   id: string;

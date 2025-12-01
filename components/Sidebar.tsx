@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, CalendarCheck, CalendarDays, DollarSign, LogOut, MessageSquare, X } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarCheck, CalendarDays, DollarSign, LogOut, MessageSquare, X, FileText } from 'lucide-react';
 import { ViewState, Employee, Department } from '../types';
 
 interface SidebarProps {
@@ -21,8 +21,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onLogout, cu
     ...(isHR ? [{ id: 'employees', label: 'Employees', icon: Users }] : []),
     { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
     { id: 'leave', label: 'Leave Mgmt', icon: CalendarDays },
-    // Only HR sees Payroll module (as requested)
+    // Only HR sees Payroll module
     ...(isHR ? [{ id: 'payroll', label: 'Payroll', icon: DollarSign }] : []),
+    // Only HR sees Documents
+    ...(isHR ? [{ id: 'documents', label: 'Documents', icon: FileText }] : []),
     { id: 'chat', label: 'AI Assistant', icon: MessageSquare },
   ];
 

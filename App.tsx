@@ -7,6 +7,7 @@ import LeaveView from './components/LeaveView';
 import PayrollView from './components/PayrollView';
 import ChatView from './components/ChatView';
 import LoginView from './components/LoginView';
+import DocumentView from './components/DocumentView';
 import { ViewState, Employee, Department, PayrollRecord, AttendanceRecord, LeaveRequest } from './types';
 import { Bell, Menu } from 'lucide-react';
 import { MOCK_EMPLOYEES, MOCK_PAYROLL, MOCK_ATTENDANCE, MOCK_LEAVES } from './constants';
@@ -70,6 +71,10 @@ function App() {
             onUpdatePayroll={setPayrollRecords}
           />
         );
+      case 'documents':
+        // Only HR
+        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
+        return <DocumentView employees={employees} />;
       case 'chat':
         return <ChatView />;
       default:
