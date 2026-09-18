@@ -43,7 +43,8 @@ async def scan(p:Scan):
   for x in [z.strip() for z in os.getenv("LEVER_SITES","").split(",") if z.strip()]:
    try:found+=await lever(c,x)
    except:pass
- if not found:found=[{"id":"demo-1","title":"HR Operations Executive","company":"Demo Feed","location":"Bengaluru","url":"https://example.com/careers","source":"Demo","description":"Demo listing. Configure public job feeds to replace this record.","posted_at":datetime.now(timezone.utc).isoformat()}]
+ if not found:
+  return {"jobs":[],"count":0,"message":"No configured public job feeds returned results. Configure GREENHOUSE_BOARDS or LEVER_SITES."}
  c=db();out=[]
  for j in found:
   s,r=score(j,p.profile,p.resume_text);j["score"]=s;j["reasons"]=r;c.execute("INSERT OR REPLACE INTO jobs VALUES(?,?,?,?,?,?,?,?,?,?)",(j["id"],j["title"],j["company"],j["location"],j["url"],j["source"],j["description"],s,"||".join(r),j.get("posted_at","")));out.append(j)
