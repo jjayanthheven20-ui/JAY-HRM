@@ -1,165 +1,24 @@
-import React, { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import Dashboard from './components/Dashboard';
-import EmployeeList from './components/EmployeeList';
-import AttendanceView from './components/AttendanceView';
-import LeaveView from './components/LeaveView';
-import PayrollView from './components/PayrollView';
-import ChatView from './components/ChatView';
-import LoginView from './components/LoginView';
-import DocumentView from './components/DocumentView';
-import { ViewState, Employee, Department, PayrollRecord, AttendanceRecord, LeaveRequest } from './types';
-import { Bell, Menu } from 'lucide-react';
-import { MOCK_EMPLOYEES, MOCK_PAYROLL, MOCK_ATTENDANCE, MOCK_LEAVES } from './constants';
-
-function App() {
-  const [currentView, setCurrentView] = useState<ViewState>('dashboard');
-  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
-  
-  // Mobile Sidebar State
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // Lifted state for data persistence across views/logins
-  const [employees, setEmployees] = useState<Employee[]>(MOCK_EMPLOYEES);
-  const [payrollRecords, setPayrollRecords] = useState<PayrollRecord[]>(MOCK_PAYROLL);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(MOCK_ATTENDANCE);
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(MOCK_LEAVES);
-
-  const handleLogin = (employee: Employee) => {
-    setCurrentUser(employee);
-    setCurrentView('dashboard');
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setCurrentView('dashboard');
-    setIsSidebarOpen(false);
-  };
-
-  const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return <Dashboard currentUser={currentUser!} />;
-      case 'employees':
-        // Double check safety if they somehow got here
-        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
-        return <EmployeeList employees={employees} onUpdateEmployees={setEmployees} />;
-      case 'attendance':
-        return (
-          <AttendanceView 
-            currentUser={currentUser!} 
-            attendanceRecords={attendanceRecords}
-            onUpdateAttendance={setAttendanceRecords}
-          />
-        );
-      case 'leave':
-        return (
-          <LeaveView 
-            currentUser={currentUser!} 
-            leaveRequests={leaveRequests}
-            onUpdateLeaves={setLeaveRequests}
-          />
-        );
-      case 'payroll':
-         // Double check safety
-        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
-        return (
-          <PayrollView 
-            currentUser={currentUser!} 
-            employees={employees}
-            payrollRecords={payrollRecords}
-            onUpdatePayroll={setPayrollRecords}
-          />
-        );
-      case 'documents':
-        // Only HR
-        if (currentUser?.department !== Department.HR) return <Dashboard currentUser={currentUser!} />;
-        return <DocumentView employees={employees} />;
-      case 'chat':
-        return <ChatView />;
-      default:
-        return <Dashboard currentUser={currentUser!} />;
-    }
-  };
-
-  if (!currentUser) {
-    return <LoginView onLogin={handleLogin} employees={employees} />;
-  }
-
-  const isHR = currentUser.department === Department.HR;
-
-  return (
-    <div className="flex min-h-screen bg-white font-sans text-gray-900">
-      <Sidebar 
-        currentView={currentView} 
-        onNavigate={setCurrentView} 
-        onLogout={handleLogout}
-        currentUser={currentUser}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      
-      {/* Main Content - with responsive margin */}
-      <main className="flex-1 md:ml-64 w-full">
-        <div className="p-3 md:p-8">
-          {/* Header Area */}
-          <header className="flex justify-between items-center mb-4 md:mb-8 border-b border-gray-100 pb-4 md:pb-6">
-            <div className="flex items-center">
-              {/* Mobile Hamburger Button */}
-              <button 
-                onClick={() => setIsSidebarOpen(true)}
-                className="mr-3 md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-md active:bg-gray-200"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-
-              <div>
-                <h1 className="text-lg md:text-xl font-medium text-gray-400 leading-tight">
-                  Welcome back, <span className="text-black font-bold block md:inline">{currentUser.firstName}</span>
-                </h1>
-                <div className="flex items-center mt-1">
-                  <p className="text-xs md:text-sm text-gray-400 hidden md:block">HR Operations Dashboard</p>
-                  {isHR && (
-                    <span className="md:ml-2 px-2 py-0.5 bg-black text-white text-[10px] font-bold uppercase tracking-wider rounded-sm">
-                      Admin
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 md:space-x-6">
-              <div className="relative cursor-pointer group">
-                <div className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <Bell className="w-5 h-5 text-gray-500 group-hover:text-blue-600" />
-                </div>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full border border-white"></span>
-              </div>
-              
-              <div className="flex items-center space-x-3 pl-3 md:pl-6 md:border-l border-gray-200">
-                 <div className="text-right hidden md:block">
-                    <p className="text-sm font-bold text-black">{currentUser.firstName} {currentUser.lastName}</p>
-                    <p className="text-xs text-gray-500">{currentUser.role}</p>
-                 </div>
-                 <div className="h-9 w-9 md:h-10 md:w-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm cursor-pointer overflow-hidden">
-                    {currentUser.avatarUrl ? (
-                      <img src={currentUser.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <span>{currentUser.firstName.charAt(0)}{currentUser.lastName.charAt(0)}</span>
-                    )}
-                 </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Content Area */}
-          <div className="animate-fade-in pb-8 md:pb-0">
-            {renderView()}
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-export default App;
+import React,{useEffect,useMemo,useState}from"react";
+import{BriefcaseBusiness,Search,FileText,Settings2,ExternalLink,CheckCircle2,ShieldCheck,Upload,Sparkles,ChevronRight,RefreshCw}from"lucide-react";
+import"./styles.css";
+type Job={id:string;title:string;company:string;location:string;url:string;source:string;description:string;score:number;reasons:string[]};
+type AppRec={id:string;title:string;company:string;status:string;score:number;url:string};
+const API=import.meta.env.VITE_API_URL||"";
+const defaults={name:"Jayanth J",email:"jjayanthheven20@gmail.com",locations:["Bengaluru","Kerala","Remote India"],roles:["HR Executive","HR Operations","Recruitment Coordinator","Talent Acquisition","People Operations"],threshold:80};
+async function api(p:string,o?:RequestInit){const r=await fetch(API+p,o);if(!r.ok)throw Error(await r.text());return r.json()}
+export default function App(){
+const[tab,setTab]=useState("dashboard"),[jobs,setJobs]=useState<Job[]>([]),[apps,setApps]=useState<AppRec[]>([]),[profile,setProfile]=useState(defaults),[resume,setResume]=useState<File|null>(null),[resumeText,setResumeText]=useState(""),[loading,setLoading]=useState(false),[notice,setNotice]=useState(""),[selected,setSelected]=useState<Job|null>(null),[draft,setDraft]=useState("");
+useEffect(()=>{api("/api/jobs").then(x=>setJobs(x.jobs||[])).catch(()=>{});api("/api/applications").then(x=>setApps(x.applications||[])).catch(()=>{})},[]);
+const qualified=useMemo(()=>jobs.filter(j=>j.score>=profile.threshold),[jobs,profile.threshold]);
+const scan=async()=>{setLoading(true);setNotice("Scanning configured public job feeds…");try{let x=await api("/api/jobs/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({profile,resume_text:resumeText})});setJobs(x.jobs||[]);setNotice("Scan complete: "+(x.jobs?.length||0)+" jobs loaded.")}catch{setNotice("Start the FastAPI backend and configure Greenhouse/Lever sources.")}finally{setLoading(false)}};
+const upload=async(f:File)=>{setResume(f);let d=new FormData;d.append("file",f);try{let x=await api("/api/profile/resume",{method:"POST",body:d});setResumeText(x.text||"");setNotice("Resume extracted successfully.")}catch{setNotice("Resume upload requires the backend.")}};
+const prepare=async(j:Job)=>{setSelected(j);try{let x=await api("/api/applications/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({job:j,profile,resume_text:resumeText})});setDraft(x.cover_letter||"")}catch{setDraft("Dear Hiring Team,\n\nI am interested in the "+j.title+" role at "+j.company+". My experience in HR operations, recruitment coordination, onboarding, HRMS, documentation and reporting aligns with this opportunity. I would welcome the chance to discuss my fit.\n\nRegards,\nJayanth J")}};
+const track=async(j:Job)=>{try{let x=await api("/api/applications",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({job:j,status:"Ready for review"})});setApps([x.application,...apps]);setNotice("Added to application tracker.")}catch{setNotice("Tracker requires the backend.")}};
+const nav=[["dashboard","Dashboard",BriefcaseBusiness],["jobs","Job Discovery",Search],["tracker","Applications",FileText],["profile","Profile & Resume",Settings2]] as any;
+return <div className="app"><aside><div className="brand"><b>JAY JOB AI</b><small>Application Agent</small></div><nav>{nav.map(([id,label,I]:any)=><button className={tab===id?"active":""} onClick={()=>setTab(id)} key={id}><I size={17}/>{label}</button>)}</nav><div className="safe"><ShieldCheck size={17}/><span><b>Human approval</b>No OTP/CAPTCHA bypass. Final submission stays under your control.</span></div></aside><main><header><div><small>JOB SEARCH AUTOMATION</small><h1>{tab==="dashboard"?"Your job command center":tab==="jobs"?"Discover matching jobs":tab==="tracker"?"Application tracker":"Master profile"}</h1></div><button className="scan" onClick={scan} disabled={loading}>{loading?<RefreshCw className="spin"/>:<Sparkles/>}{loading?"Scanning":"Scan new jobs"}</button></header>{notice&&<div className="notice"><CheckCircle2 size={16}/>{notice}</div>}{tab==="dashboard"&&<Dashboard jobs={qualified} apps={apps} scan={scan} go={setTab}/>} {tab==="jobs"&&<Jobs jobs={jobs} prep={prepare} track={track}/>} {tab==="tracker"&&<Tracker apps={apps}/>} {tab==="profile"&&<Profile p={profile} setP={setProfile} resume={resume} upload={upload}/>} {selected&&<div className="modal"><div className="modalbox"><button className="close" onClick={()=>setSelected(null)}>×</button><small>APPLICATION DRAFT</small><h2>{selected.title}</h2><p>{selected.company} · {selected.location} · Match {selected.score}%</p><textarea value={draft} onChange={e=>setDraft(e.target.value)}/><div className="actions"><a href={selected.url} target="_blank">Open company page <ExternalLink size={14}/></a><button onClick={()=>{track(selected);setSelected(null)}}>Save to tracker</button></div></div></div>}</main></div>}
+function Dashboard({jobs,apps,scan,go}:any){return <section><div className="hero"><div><span className="pill"><Sparkles size={13}/> AI-assisted workflow</span><h2>Find. Match. Prepare.<br/><em>Apply with control.</em></h2><p>Built for Jayanth's HR search: Bengaluru, Kerala and Remote India, with an 80% match threshold.</p><button className="primary" onClick={scan}>Find new opportunities <ChevronRight/></button></div><div className="orb"><b>{jobs.length}</b><span>qualified jobs</span></div></div><div className="stats"><Stat t="80%+ matches"v={jobs.length}/><Stat t="In tracker"v={apps.length}/><Stat t="Ready for review"v={apps.filter((x:any)=>x.status==="Ready for review").length}/><Stat t="Safety gate"v="ON"/></div><div className="head"><div><h3>High-match opportunities</h3><p>Jobs meeting your configured threshold.</p></div><button onClick={()=>go("jobs")}>View all →</button></div><div className="cards">{jobs.slice(0,4).map((j:Job)=><Card key={j.id}j={j} prep={()=>go("jobs")}/>)}</div></section>}
+function Stat({t,v}:any){return <div className="stat"><small>{t}</small><b>{v}</b></div>}
+function Jobs({jobs,prep,track}:any){return <section><div className="filters"><span>Bengaluru · Kerala · Remote India</span><span>HR / People / Talent</span><span>Score ≥ 80</span></div><div className="cards">{jobs.length?jobs.map((j:Job)=><Card key={j.id}j={j}prep={()=>prep(j)}track={()=>track(j)}/>):<div className="empty"><Search/><h3>No jobs loaded</h3><p>Configure public Greenhouse or Lever feeds, then scan.</p></div>}</div></section>}
+function Card({j,prep,track}:any){return <article className="card"><div className="jobtop"><div><small>{j.source}</small><h3>{j.title}</h3><p>{j.company} · {j.location}</p></div><strong className={j.score>=80?"good":""}>{j.score}%</strong></div><p className="desc">{(j.description||"").slice(0,190)}…</p><div className="tags">{(j.reasons||[]).slice(0,3).map((x:string)=><span key={x}>{x}</span>)}</div><div className="cardactions"><a href={j.url} target="_blank">View <ExternalLink size={13}/></a><button onClick={prep}>Prepare</button>{track&&<button className="ghost"onClick={track}>Track</button>}</div></article>}
+function Tracker({apps}:any){return <section><div className="lanes">{["Ready for review","Applied","Follow-up","Closed"].map(s=><div className="lane"><h3>{s}</h3>{apps.filter((x:any)=>x.status===s).map((a:any)=><div className="apprec"><b>{a.title}</b><span>{a.company}</span><small>{a.score}% match</small></div>)}</div>)}</div></section>}
+function Profile({p,setP,resume,upload}:any){return <section><div className="profile"><div className="panel"><h3>Master application profile</h3><p>Used for matching and application drafts.</p>{[["name","Name"],["email","Email"]].map(([k,l])=><label>{l}<input value={p[k]} onChange={e=>setP({...p,[k]:e.target.value})}/></label>)}<label>Target roles<input value={p.roles.join(", ")} onChange={e=>setP({...p,roles:e.target.value.split(",").map((x:string)=>x.trim())})}/></label><label>Locations<input value={p.locations.join(", ")} onChange={e=>setP({...p,locations:e.target.value.split(",").map((x:string)=>x.trim())})}/></label><label>Minimum match score<input type="number"value={p.threshold}onChange={e=>setP({...p,threshold:+e.target.value})}/></label></div><div className="panel upload"><Upload/><h3>{resume?.name||"Upload your latest resume"}</h3><p>PDF or DOCX. Text is extracted by the API for matching.</p><label className="uploadbtn">Choose file<input type="file"accept=".pdf,.docx"onChange={e=>e.target.files?.[0]&&upload(e.target.files[0])}/></label></div></div></section>}
