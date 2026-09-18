@@ -74,4 +74,4 @@ async def prepare(p:Prepare):
 def applications():return {"applications":[dict(x) for x in db().execute("SELECT * FROM applications ORDER BY created_at DESC").fetchall()]}
 @app.post("/api/applications")
 def application(p:Track):
- j=p.job;now=datetime.now(timezone.utc).isoformat();i=str(uuid.uuid4());db().execute("INSERT INTO applications VALUES(?,?,?,?,?,?,?,?,?)",(i,j.get("id"),j.get("title"),j.get("company"),p.status,int(j.get("score",0)),j.get("url"),"",now));c=db();c.commit();return {"application":{"id":i,"title":j.get("title"),"company":j.get("company"),"status":p.status,"score":j.get("score",0),"url":j.get("url")}}
+ j=p.job;now=datetime.now(timezone.utc).isoformat();i=str(uuid.uuid4());c=db();c.execute("INSERT INTO applications VALUES(?,?,?,?,?,?,?,?,?)",(i,j.get("id"),j.get("title"),j.get("company"),p.status,int(j.get("score",0)),j.get("url"),"",now));c.commit();return {"application":{"id":i,"title":j.get("title"),"company":j.get("company"),"status":p.status,"score":j.get("score",0),"url":j.get("url")}}
